@@ -31,3 +31,8 @@ class User(AbstractBaseUser,PermissionsMixin):
 
     def __str__(self):
         return self.email
+    
+class Addsomething(models.Model):
+    title = models.CharField(max_length=100)
+    discription = models.TextField(max_length=500)
+    user = models.ForeignKey(User,on_delete=models.CASCADE, related_name='addsomething')

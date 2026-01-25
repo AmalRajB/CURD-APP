@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes,authentication_classes
 from rest_framework.response import Response
-from rest_framework import authentication, permissions
 from . models import *
 from .serializers import Addsomethingsetializer
 from rest_framework.permissions import IsAuthenticated,AllowAny
@@ -53,14 +52,34 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             return Response({'success':False})
 
 
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self,request,*args,**kargs):
+        try:
+            refresh_token = request.COOKIES.get('refresh_token')
+            request.data['refresh'] = refresh_token
 
+            response = super().post(request,*args,**kargs)
+            tokens = response.data
+            access_token = tokens['access']
 
+            res = Response()
 
+            res.data = {'refresh':True}
 
+            res.set_cookie(
+                key='access_token',
+                value=access_token,
+                httponly=True,
+                secure=True,
+                samesite='None',
+                path='/'
 
+                
+            )
+            return res
 
-
-
+        except: 
+            return Response({'refreshed':False})   
 
 
 
@@ -75,6 +94,7 @@ def displaydata_api(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@authentication_classes([])
 @permission_classes([AllowAny])
 def api_signup(request):
     email = request.data.get('email')
@@ -102,15 +122,30 @@ def api_signup(request):
     user.save()
     return Response('user created successfully', status=HTTP_200_OK)
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def api_login(request):
-    email = request.data.get('email')
-    password = request.data.get('password')
-    if not email or not password:
-        return Response('email and password fields are needed')
-    user = authentication(email=email,password=password)
-    if not user:
-        return Response('invalid credentials',status=HTTP_404_NOT_FOUND)
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def api_login(request):
+#     email = request.data.get('email')
+#     password = request.data.get('password')
+#     if not email or not password:
+#         return Response('email and password fields are needed')
+#     user = authentication(email=email,password=password)
+#     if not user:
+#         return Response('invalid credentials',status=HTTP_404_NOT_FOUND)
     
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_api(request):
+
+    try:
+        res = Response()
+        res.data = {'success':True}
+        res.delete_cookie('access_token',path='/',samesite='None')
+        res.delete_cookie('refresh_token',path='/',samesite='None')
+        return res
+
+    except:
+        return Response({'success':False})    
+
+  

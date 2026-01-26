@@ -122,17 +122,6 @@ def api_signup(request):
     user.save()
     return Response('user created successfully', status=HTTP_200_OK)
 
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def api_login(request):
-#     email = request.data.get('email')
-#     password = request.data.get('password')
-#     if not email or not password:
-#         return Response('email and password fields are needed')
-#     user = authentication(email=email,password=password)
-#     if not user:
-#         return Response('invalid credentials',status=HTTP_404_NOT_FOUND)
-    
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -148,4 +137,9 @@ def logout_api(request):
     except:
         return Response({'success':False})    
 
-  
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  
+def is_authenticated(request):
+    return Response({"authenticated":True})
+
+

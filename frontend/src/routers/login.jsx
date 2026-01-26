@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import '../pagestyle/login.css'
-import { login } from '../api_endpoints/api'
+import { UseAuth } from '../context/useAuth'
 
 const LoginComponent = () => {
   const [email, setemail] = useState('')
   const [password, setpassword] = useState('')
+  const {user_login} = UseAuth();
 
   const handlelogin = (e) => {
     e.preventDefault() 
-    login(email, password)
+    user_login(email, password)
   }
 
   return (

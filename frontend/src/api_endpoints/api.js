@@ -4,7 +4,8 @@ const BASE_URL = 'http://127.0.0.1:8000/api/'
 const LOGIN_URL = `${BASE_URL}token/`
 const REFRESH_URL = `${BASE_URL}refresh/`
 const DATA_URL = `${BASE_URL}getdata/`
-
+const LOGOUT_URL = `${BASE_URL}logout/`
+const AUTH_URL = `${BASE_URL}authenticated/`
 
 
 export const login = async (email, password) => {
@@ -48,4 +49,25 @@ export const display_data = async () => {
         return call_refresh(error, axios.get(DATA_URL, { withCredentials: true }))
     }
 
+}
+
+export const logout = async () =>{
+    try{
+        await axios.post(LOGOUT_URL,
+            {},
+            {withCredentials:true}
+        )
+        return true
+    }catch(error){
+        return false
+    }
+}
+
+export const is_authenticated = async () =>{
+    try {
+        await axios.post(AUTH_URL,{},{withCredentials:true})
+        return true
+    } catch (error) {
+        return false
+    }
 }
